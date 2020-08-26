@@ -36,7 +36,7 @@ completed_upto = read_tracker("track.conf")
 with open('chapters.pickle', 'rb') as f:
     chapters = pickle.load(f)
 
-def download(problem_num, url, title, solution_slug):  
+def download(problem_num, url, title, solution_slugm, data):  
     print(Fore.BLACK + Back.CYAN + f"Fetching problem num " + Back.YELLOW + f" {problem_num} " + Back.CYAN + " with url " + Back.YELLOW + f" {url} ")
     n = len(title)
 
@@ -51,22 +51,35 @@ def download(problem_num, url, title, solution_slug):
         html = driver.page_source
         soup = bs4.BeautifulSoup(html, "html.parser")
 
+        
+        question = []
+       
+        question.append(soup.find("div", {"class": "content__u3I1 question-content__JfgR"}).text)
+        s=[]
+        sim = soup.find_all("a", {"class": "title__1kvt"})
+        for a in sim:
+            s.append(a)
+        question.append(s)
+        t=[]
+        tag = soup.find_all("span", {"class": "tag__2PqS"})
+        for a in tag:
+            t.append(a)
+        question.append(t)
+        data[title] = question
+
+        
+        """
         # Construct HTML
+
+
         title_decorator = '*' * n
         problem_title_html = title_decorator + f'<div id="title">{title}</div>' + '\n' + title_decorator
-        problem_html = problem_title_html + str(soup.find("div", {"class": "content__u3I1 question-content__JfgR"})) + str(soup.find("a", {"class": "title__1kvt"})) + '<br><br><hr><br>' 
+        problem_html = problem_title_html + str(soup.find("div", {"class": "content__u3I1 question-content__JfgR"})) + str(soup.find("a", {"class": "title__1kvt"}))+str(soup.find("span", {"class": "tag__2PqS"}))+ '<br><br><hr><br>' 
         # Append Contents to a HTML file
         with open("out.html", "ab") as f:
             f.write(problem_html.encode(encoding="utf-8"))
-        
-        # create and append chapters to construct an epub
-        c = epub.EpubHtml(title=title, file_name=f'chap_{problem_num}.xhtml', lang='hr')
-        c.content = problem_html
-        chapters.append(c)
+        """
 
-
-        # Write List of chapters to pickle file
-        dump_chapters_to_file(chapters)
         # Update upto which the problem is downloaded
         update_tracker('track.conf', problem_num)
         print(Fore.BLACK + Back.GREEN + f"Writing problem num " + Back.YELLOW + f" {problem_num} " + Back.GREEN + " with url " + Back.YELLOW + f" {url} " )
@@ -91,6 +104,10 @@ def main():
     algorithms_problems_json = json.loads(algorithms_problems_json)
 
     styles_str = "<style>pre{white-space:pre-wrap;background:#f7f9fa;padding:10px 15px;color:#263238;line-height:1.6;font-size:13px;border-radius:3px margin-top: 0;margin-bottom:1em;overflow:auto}b,strong{font-weight:bolder}#title{font-size:16px;color:#212121;font-weight:600;margin-bottom:10px}hr{height:10px;border:0;box-shadow:0 10px 10px -10px #8c8b8b inset}</style>"
+    
+    #key is name of the question, [question content, [similar qusetions], [tags]]
+    data = {}
+    
     with open("out.html", "ab") as f:
             f.write(styles_str.encode(encoding="utf-8"))
 
@@ -116,7 +133,7 @@ def main():
              title = f"{frontend_question_id}. {question__title}"
 
              # Download each file as html and write chapter to chapters.pickle
-             download(i, url , title, question__article__slug)
+             download(i, url , title, question__article__slug, data)
 
              # Sleep for 20 secs for each problem and 2 minns after every 30 problems
              if i % 30 == 0:
@@ -130,13 +147,9 @@ def main():
         # Close the browser after download
         driver.quit()
     
-    try:
-        epub_writer.write("Leetcode Questions.epub", "Leetcode Questions", "Anonymous", chapters)
-        print(Back.GREEN + "All operations successful")
-    except Exception as e:
-        print(Back.RED + f"Error making epub {e}")
-    
 
+    
+       
 
 if __name__ == "__main__":
     main()
