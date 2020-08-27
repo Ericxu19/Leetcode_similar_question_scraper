@@ -14,6 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import *
 import epub_writer
+import json
+import re
 
 # Initialize Colorama       
 colorama.init(autoreset=True)
@@ -36,7 +38,7 @@ completed_upto = read_tracker("track.conf")
 with open('chapters.pickle', 'rb') as f:
     chapters = pickle.load(f)
 
-def download(problem_num, url, title, solution_slugm, data):  
+def download(problem_num, url, title, solution_slugm, data, qbank):  
     print(Fore.BLACK + Back.CYAN + f"Fetching problem num " + Back.YELLOW + f" {problem_num} " + Back.CYAN + " with url " + Back.YELLOW + f" {url} ")
     n = len(title)
 
@@ -55,18 +57,22 @@ def download(problem_num, url, title, solution_slugm, data):
         question = []
        
         question.append(soup.find("div", {"class": "content__u3I1 question-content__JfgR"}).text)
+        
         s=[]
         sim = soup.find_all("a", {"class": "title__1kvt"})
         for a in sim:
-            s.append(a)
+            s.append(a.text)
         question.append(s)
         t=[]
         tag = soup.find_all("span", {"class": "tag__2PqS"})
         for a in tag:
-            t.append(a)
+            t.append(a.text)
         question.append(t)
-        data[title] = question
 
+        title = re.sub('\d+\.', '', str(title),)
+        data[title.strip()] = question
+
+        json.dump(data, qbank, indent=4)
         
         """
         # Construct HTML
@@ -107,6 +113,8 @@ def main():
     
     #key is name of the question, [question content, [similar qusetions], [tags]]
     data = {}
+
+    qbank = open('questionbank.json', 'w')
     
     with open("out.html", "ab") as f:
             f.write(styles_str.encode(encoding="utf-8"))
@@ -133,7 +141,7 @@ def main():
              title = f"{frontend_question_id}. {question__title}"
 
              # Download each file as html and write chapter to chapters.pickle
-             download(i, url , title, question__article__slug, data)
+             download(i, url , title, question__article__slug, data, qbank)
 
              # Sleep for 20 secs for each problem and 2 minns after every 30 problems
              if i % 30 == 0:
