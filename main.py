@@ -70,22 +70,13 @@ def download(problem_num, url, title, solution_slugm, data, qbank):
         question.append(t)
 
         title = re.sub('\d+\.', '', str(title),)
+
         data[title.strip()] = question
 
+        qbank.seek(0)
         json.dump(data, qbank, indent=4)
         
-        """
-        # Construct HTML
-
-
-        title_decorator = '*' * n
-        problem_title_html = title_decorator + f'<div id="title">{title}</div>' + '\n' + title_decorator
-        problem_html = problem_title_html + str(soup.find("div", {"class": "content__u3I1 question-content__JfgR"})) + str(soup.find("a", {"class": "title__1kvt"}))+str(soup.find("span", {"class": "tag__2PqS"}))+ '<br><br><hr><br>' 
-        # Append Contents to a HTML file
-        with open("out.html", "ab") as f:
-            f.write(problem_html.encode(encoding="utf-8"))
-        """
-
+       
         # Update upto which the problem is downloaded
         update_tracker('track.conf', problem_num)
         print(Fore.BLACK + Back.GREEN + f"Writing problem num " + Back.YELLOW + f" {problem_num} " + Back.GREEN + " with url " + Back.YELLOW + f" {url} " )
