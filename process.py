@@ -4,12 +4,14 @@ import re
 import random
 
 leetData = open('leetData.csv', 'r+')
+Qcollection = open('Qcollection.csv', 'r+')
 qbank = open("questionbank.json", 'r')
 writer = csv.writer(leetData)
-
+Qwriter = csv.writer(Qcollection)
 data = json.load(qbank)
 dic = data.items()
 
+Qcol = []
 #remove the examples from the dataset
 for name, r in dic:
     r[0] = re.sub("Example\s\d+(.|\s)*$", '', str(r[0]))
@@ -18,6 +20,9 @@ for name, r in dic:
     r[0] = re.sub("Example(.|\s)*$", '', str(r[0]))
     r[0] = re.sub("Follow up:(.|\s)*$", '', str(r[0]))
     r[0] = r[0].rstrip('\n')
+    Qcol.append(r[0])
+
+Qwriter.writerow(Qcol)
 row = []
 for name, r in dic:
     if r[1]:
@@ -81,3 +86,6 @@ for name,  r in dic:
 
 #make a 20 percent dev set       
 
+leetData.close()
+Qcollection.close()
+qbank.close()

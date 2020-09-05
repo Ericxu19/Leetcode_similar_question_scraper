@@ -9,3 +9,5 @@ The questions will be striped of the included examples and notes.
 the score is out of 5 and is determined by the "similar question" category and "Related Topics" tags on the question on leetcode. 
 
 Questions taged in similar question will recieve a score of 5. Score of other pairs of questions are determined by the amount of Related Topics tags they share.
+
+process.py also produces Qcollection.csv which is simply a collection of all the problems with the examples and notes striped.
