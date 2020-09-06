@@ -12,6 +12,14 @@ data = json.load(qbank)
 dic = data.items()
 
 Qcol = []
+
+count = 0
+count5 = 0
+count4 = 0
+count3 = 0
+count35 = 0
+count1 = 0
+count0 = 0
 #remove the examples from the dataset
 for name, r in dic:
     r[0] = re.sub("Example\s\d+(.|\s)*$", '', str(r[0]))
@@ -33,9 +41,14 @@ for name, r in dic:
                 row.append(r[0])
                 row.append(data[qName][0])
                 row.append(5.0)
-                if random.random() <= 0.2:
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
                     row.append('dev')
                 writer.writerow(row)
+                count +=1 
+                count5+=1
 for name,  r in dic:
     if len(r[2]) >= 3:
         for sname, sr in dic:
@@ -44,9 +57,14 @@ for name,  r in dic:
                 row.append(r[0])
                 row.append(sr[0])
                 row.append(4.0)
-                if random.random() <= 0.2:
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
                     row.append('dev')
                 writer.writerow(row)
+                count +=1 
+                count4 += 1
 
 for name,  r in dic:
     if len(r[2]) == 2:
@@ -56,9 +74,14 @@ for name,  r in dic:
                 row.append(r[0])
                 row.append(sr[0])
                 row.append(3.0)
-                if random.random() <= 0.2:
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
                     row.append('dev')
                 writer.writerow(row)
+                count +=1 
+                count3 +=1
 
 for name,  r in dic:
     if len(r[2]) >= 3:
@@ -68,9 +91,14 @@ for name,  r in dic:
                 row.append(r[0])
                 row.append(sr[0])
                 row.append(3.5)
-                if random.random() <= 0.2:
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
                     row.append('dev')
                 writer.writerow(row)
+                count +=1 
+                count35 += 1
 
 for name,  r in dic:
     if len(r[2]) >= 3:
@@ -80,12 +108,42 @@ for name,  r in dic:
                 row.append(r[0])
                 row.append(sr[0])
                 row.append(0.0)
-                if random.random() <= 0.2:
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
                     row.append('dev')
-                writer.writerow(row)  
+                writer.writerow(row)
+                count +=1   
+                count0 +=1
+
+for name,  r in dic:
+    if len(r[2]) >= 3:
+        for sname, sr in dic:
+            if len(sr[2]) >= 3 and sname != name and len(set(sr[2]).intersection(set(r[2]))) == 1:
+                row = []
+                row.append(r[0])
+                row.append(sr[0])
+                row.append(1.0)
+                ran = random.random()
+                if ran<= 0.05:
+                    row.append('test')
+                elif ran <= 0.25:
+                    row.append('dev')
+                writer.writerow(row)
+                count +=1   
+                count1 +=1
 
 #make a 20 percent dev set       
 
 leetData.close()
 Qcollection.close()
 qbank.close()
+
+print("total: " + str(count))
+print("score 5: "+ str(count5))
+print("score 4: "+ str(count4))
+print("score 3: "+ str(count3))
+print("score 3.5: "+ str(count35))
+print("score 1: "+ str(count35))
+print("score 0: "+ str(count0))
