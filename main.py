@@ -6,7 +6,7 @@ import bs4
 import colorama
 import requests
 from colorama import Back, Fore
-from ebooklib import epub
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -68,8 +68,6 @@ def download(problem_num, url, title, solution_slugm, data, qbank):
             t.append(a.text)
         question.append(t)
 
-        title = re.sub('\d+\.', '', str(title),)
-
         data[title.strip()] = question
 
         qbank.seek(0)
@@ -113,7 +111,8 @@ def main():
     links = []
     for child in algorithms_problems_json["stat_status_pairs"]:
             # Only process free problems
-            if not child["paid_only"]:
+            if child["paid_only"]:
+                
                 question__title_slug = child["stat"]["question__title_slug"]
                 question__article__slug = child["stat"]["question__article__slug"]
                 question__title = child["stat"]["question__title"]
@@ -123,13 +122,13 @@ def main():
 
     # Sort by difficulty follwed by problem id in ascending order
     links = sorted(links, key=lambda x: (x[1], x[2]))
+      
 
     try: 
         for i in range(completed_upto + 1, len(links)):
              question__title_slug, _ , frontend_question_id, question__title, question__article__slug = links[i]
              url = ALGORITHMS_BASE_URL + question__title_slug
-             title = f"{frontend_question_id}. {question__title}"
-
+             title = question__title_slug
              # Download each file as html and write chapter to chapters.pickle
              download(i, url , title, question__article__slug, data, qbank)
 
@@ -144,7 +143,7 @@ def main():
     finally:
         # Close the browser after download
         driver.quit()
-    
+ 
 
     
        
